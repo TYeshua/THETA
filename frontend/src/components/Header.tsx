@@ -23,7 +23,7 @@ export function Header({ activeContext, onContextChange, onRefresh, onAdd, onPla
         {/* Branding de Luxo THETA - Centralizado */}
         <div className="flex flex-col items-center text-center">
           <h1 className="text-2xl font-black tracking-tighter text-white flex items-baseline justify-center gap-2 italic">
-            <span className="text-[#ff2400] drop-shadow-[0_0_15px_rgba(255,36,0,0.5)]">Θ</span> THETA
+            <span className="text-[#ff2400] drop-shadow-[0_0_15px_rgba(255,36,0,0.5)]">Θ</span> THETA 1.0
           </h1>
           <p className="text-[9px] text-neutral-500 font-bold tracking-[0.25em] uppercase mt-0.5">
             Time & Habits Execution Tracking Algorithm
