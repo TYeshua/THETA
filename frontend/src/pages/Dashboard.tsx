@@ -32,6 +32,7 @@ export function Dashboard() {
   const [showMenu, setShowMenu] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
   const [inboxView, setInboxView] = useState<'calendar' | 'list'>('calendar');
+  const [calendarRefreshing, setCalendarRefreshing] = useState(false);
   const [showPlasticity, setShowPlasticity] = useState(false);
   // Chave para forçar re-fetch do NeuralBandwidth após adicionar tasks
   const [bandwidthKey, setBandwidthKey] = useState(0);
@@ -155,7 +156,12 @@ export function Dashboard() {
         {/* Botão INBOX (Direita) */}
         <motion.button 
           whileTap={{ scale: 0.85 }} 
-          onClick={() => setShowInbox(true)}
+          onClick={async () => {
+            setShowInbox(true);
+            setCalendarRefreshing(true);
+            await fetchTasks();
+            setCalendarRefreshing(false);
+          }}
           className="text-neutral-500 hover:text-white transition-colors p-2"
         >
           <Inbox size={22} strokeWidth={1.5} />
@@ -224,7 +230,16 @@ export function Dashboard() {
               </div>
 
               {inboxView === 'calendar' ? (
-                <CalendarBuffer tasks={tasks} onStatusChange={(id, status) => updateStatus(id, status)} />
+                <CalendarBuffer
+                  tasks={tasks}
+                  onStatusChange={(id, status) => updateStatus(id, status)}
+                  onRefresh={async () => {
+                    setCalendarRefreshing(true);
+                    await fetchTasks();
+                    setCalendarRefreshing(false);
+                  }}
+                  isRefreshing={calendarRefreshing}
+                />
               ) : (
                 <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-8">
                   <AnimatePresence>

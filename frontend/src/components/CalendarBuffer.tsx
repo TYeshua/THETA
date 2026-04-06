@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Activity, BookOpen, Brain, Briefcase, FileText } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Activity, BookOpen, Brain, Briefcase, FileText, RefreshCw } from 'lucide-react';
 import type { Task } from '../types/task';
 import { getPriorityLevel } from '../types/task';
 import { generateCalendarGrid, MONTH_NAMES } from '../utils/calendar';
@@ -9,6 +9,8 @@ import { TaskDetailModal } from './TaskDetailModal';
 interface CalendarBufferProps {
   tasks: Task[];
   onStatusChange: (id: number, status: Task['status']) => void;
+  onRefresh?: () => Promise<void>;
+  isRefreshing?: boolean;
 }
 
 const getCategoryIcon = (category: string) => {
@@ -20,7 +22,7 @@ const getCategoryIcon = (category: string) => {
   return <Activity size={10} />;
 };
 
-export function CalendarBuffer({ tasks, onStatusChange }: CalendarBufferProps) {
+export function CalendarBuffer({ tasks, onStatusChange, onRefresh, isRefreshing = false }: CalendarBufferProps) {
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -96,10 +98,39 @@ export function CalendarBuffer({ tasks, onStatusChange }: CalendarBufferProps) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex justify-between items-center mb-4 px-1">
-        <h3 className="text-white font-black text-lg tracking-tight uppercase">
-          {MONTH_NAMES[currentMonth]} <span className="text-neutral-600">{currentYear}</span>
-        </h3>
         <div className="flex items-center gap-2">
+          <h3 className="text-white font-black text-lg tracking-tight uppercase">
+            {MONTH_NAMES[currentMonth]} <span className="text-neutral-600">{currentYear}</span>
+          </h3>
+          {/* Indicador "ao vivo" */}
+          <motion.div
+            animate={{ opacity: isRefreshing ? [1, 0.3, 1] : 1 }}
+            transition={{ duration: 0.8, repeat: isRefreshing ? Infinity : 0 }}
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20"
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isRefreshing ? 'bg-yellow-400' : 'bg-emerald-400'}`} />
+            <span className="text-[8px] font-bold uppercase tracking-widest text-neutral-500">
+              {isRefreshing ? 'Sync...' : 'DB Live'}
+            </span>
+          </motion.div>
+        </div>
+        <div className="flex items-center gap-2">
+          {onRefresh && (
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="p-1.5 rounded-full bg-white/[0.05] text-neutral-400 hover:text-white transition-colors disabled:opacity-40"
+              title="Sincronizar com banco"
+            >
+              <motion.div
+                animate={{ rotate: isRefreshing ? 360 : 0 }}
+                transition={{ duration: 0.8, repeat: isRefreshing ? Infinity : 0, ease: 'linear' }}
+              >
+                <RefreshCw size={14} />
+              </motion.div>
+            </motion.button>
+          )}
           <button onClick={handlePrevMonth} className="p-1.5 rounded-full bg-white/[0.05] text-neutral-400 hover:text-white transition-colors">
             <ChevronLeft size={16} />
           </button>
